@@ -73,17 +73,14 @@ print("----------------------")
 
 batch_size = 20
 
-train_values = []
-train_error_values = []
-
-valid_values = []
 valid_error_values = []
+training_error_values = []
 
 current_error = 1.
 last_error = 0.
 epoch = 0
 
-while (abs(current_error - last_error)) > 0.01:
+while (abs(current_error - last_error)) > .001:
     epoch += 1
     for jj in range(len(train_x) // batch_size):  # Este bucle se ejecuta 5
         batch_xs = train_x[jj * batch_size: jj * batch_size + batch_size]
@@ -92,40 +89,34 @@ while (abs(current_error - last_error)) > 0.01:
 
     # validation
     current_error = sess.run(loss, feed_dict={x: batch_xs, y_: batch_ys})
-    valid_error_values.append(current_error)
+    training_error_values.append(current_error)
     if epoch > 1:
-        last_error = valid_error_values[-2]
-    print("Epoch #:", epoch, "Error: ", current_error)
+        last_error = training_error_values[-2]
+    print('Epoch #:', epoch, 'Training error:\t', current_error)
 
-    current_error2 = sess.run(loss, feed_dict={x: valid_x, y_: valid_y}) / 100
-    valid_values.append(current_error2)
-    print("Epoch #:", epoch, "Error2: ", current_error2)
-
-    # sess.run(y, feed_dict={x: valid_x})
-    # result = sess.run(y, feed_dict={x: valid_x})
-    # valid_values.append(result)
-    # for b, r in zip(valid_y, result):
-    #     print(b, "-->", r)
-    # print("----------------------------------------------------------------------------------")
+    validation_error = sess.run(loss, feed_dict={x: valid_x, y_: valid_y}) / 100
+    valid_error_values.append(validation_error)
+    print('\t\t  ', 'Validation error:', validation_error)
 
 print("------------------")
 print("   Start test...  ")
 print("------------------")
 
-error = 0.
 good = 0.
 result = sess.run(y, feed_dict={x: test_x})
 for b, r in zip(test_y, result):
     # print(b, "-->", r)
     # print(np.argmax(b), "-->", np.argmax(r))
-    if (np.argmax(b) != np.argmax(r)):
-        error += 1
-    else:
+    if (np.argmax(b) == np.argmax(r)):
         good += 1
-print('Error: %.2f%%' % (error / len(result) * 100))
-print('Good: %.2f%%' % (good / len(result) * 100))
+print('------------------------------------------------')
+print('Test success: %.2f%%' % (good / len(result) * 100))
 
-plt.title("Ej: titulo")
-plt.plot(valid_error_values)
-plt.plot(valid_values)
-plt.show()
+plt.title('Training vs Validation')
+plt.ylabel('Error')
+plt.xlabel('Epoch')
+training_plot, = plt.plot(training_error_values)
+validation_plot, = plt.plot(valid_error_values)
+plt.legend(handles=[training_plot, validation_plot],
+           labels=['Training error', 'Validation error'])
+plt.savefig('mnist_graph.png')
