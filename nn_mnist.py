@@ -38,9 +38,9 @@ test_y = one_hot(test_y, 10)
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 
-plt.imshow(train_x[56].reshape((28, 28)), cmap=cm.Greys_r)
-plt.show()  # Let's see a sample
-print(train_y[56])
+# plt.imshow(train_x[56].reshape((28, 28)), cmap=cm.Greys_r)
+# plt.show()  # Let's see a sample
+# print(train_y[56])
 
 # TODO: the neural net!!
 x = tf.placeholder("float", [None, 784])  # samples 28x28 pixels
@@ -97,9 +97,13 @@ while (abs(current_error - last_error)) > 0.01:
         last_error = valid_error_values[-2]
     print("Epoch #:", epoch, "Error: ", current_error)
 
-    sess.run(y, feed_dict={x: valid_x})
-    result = sess.run(y, feed_dict={x: valid_x})
-    valid_values.append(result)
+    current_error2 = sess.run(loss, feed_dict={x: valid_x, y_: valid_y}) / 100
+    valid_values.append(current_error2)
+    print("Epoch #:", epoch, "Error2: ", current_error2)
+
+    # sess.run(y, feed_dict={x: valid_x})
+    # result = sess.run(y, feed_dict={x: valid_x})
+    # valid_values.append(result)
     # for b, r in zip(valid_y, result):
     #     print(b, "-->", r)
     # print("----------------------------------------------------------------------------------")
@@ -120,3 +124,8 @@ for b, r in zip(test_y, result):
         good += 1
 print('Error: %.2f%%' % (error / len(result) * 100))
 print('Good: %.2f%%' % (good / len(result) * 100))
+
+plt.title("Ej: titulo")
+plt.plot(valid_error_values)
+plt.plot(valid_values)
+plt.show()
